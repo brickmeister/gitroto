@@ -1,5 +1,5 @@
 [project]
-name = "_YOUR_USERNAME_HERE"
+name = "GitRoto"
 version = "0.0.1"
 authors = [
   { name="Mark Lee", email="mark.lee@databricks.com" },
