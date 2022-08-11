@@ -13,6 +13,9 @@ Git Deploy Key Rotation Server
 ## Architecture
 ![Architecture](img/GitRoto%20-%20Deploy%20Key%20Integration%20Solution%20-%20Architecture.png)
 
+## Supported Git Platforms
+* Github
+
 ## Dependencies
 
 ## Build Instructions
