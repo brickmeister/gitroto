@@ -20,6 +20,8 @@ Git Deploy Key Rotation Server
 
 ## Build Instructions
 
+PYTHONPATH="$PWD:$PWD/github:$PWD/utils" FLASK_APP=server/app flask run
+
 ## Install Instructions
 
 ## How to Contribute

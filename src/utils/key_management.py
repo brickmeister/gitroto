@@ -106,3 +106,10 @@ class KeyCache:
         return inner_func
 
         
+class RepoCache:
+    """
+    This is an in memory cache that maintains
+    a list of repos a user has access to
+    """
+
+    pass
