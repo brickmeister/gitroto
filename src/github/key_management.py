@@ -8,12 +8,13 @@ import sqlite3
 
 class GitCredentials:
     def __init__(self,
-                 sql_db : str = 'gitroto_db'):
+                 sql_db : str = 'gitroto_db.sqlite'):
         """
         Initialize the database connection
         """
 
-        self.conn = sqlite3.connect(sql_db)
+        self.sql_db = sql_db
+        self.conn = sqlite3.connect(self.sql_db)
         self.cursor = self.conn.cursor()
 
     def create_schema(self) -> bool:
@@ -28,6 +29,8 @@ class GitCredentials:
                     token TEXT
                     );
             """)
+
+            self.conn.commit()
 
             return True
 
@@ -52,6 +55,8 @@ class GitCredentials:
                     user = ?;
             """, (user,))
 
+            self.conn.commit()
+
             # return the result
             return _result.fetchone()[1]
 
@@ -74,6 +79,8 @@ class GitCredentials:
             """, (token, user)
             )
 
+            self.conn.commit()
+
             return True
 
         except Exception as err:
@@ -95,6 +102,8 @@ class GitCredentials:
 
             return True
 
+            self.conn.commit()
+
         except Exception as err:
             print(f"Failed to create user {user}, error : {err}")
             return False
@@ -111,6 +120,8 @@ class GitCredentials:
                     WHERE user = ?;)
             """, (user,))
 
+            self.conn.commit()
+
             return True
             
         except Exception as err:
@@ -120,6 +131,35 @@ class GitCredentials:
         # return the result
         # TODO ADD CHECK
         return True
+
+    def close_connection(self) -> bool:
+        """
+        Close the sqlite3 connection
+        """
+
+        try:
+            self.cursor.close()
+            return True
+
+        except Exception as err:
+            print(f"Failed to close sqlite3 connection, error : {err}")
+            return False
+
+
+    def open_connection(self) -> bool:
+        """
+        Open a database connect
+        """
+        
+        try:
+            self.conn = sqlite3.connect(self.sql_db)
+            self.cursor = self.conn.cursor()
+            return True
+
+        except Exception as err:
+            print(f"Failed to open sqlite3 connection, error = {err}")
+            return False
+
 
     def load_s3(self) -> bool:
         """
