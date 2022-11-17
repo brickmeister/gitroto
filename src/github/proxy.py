@@ -4,8 +4,13 @@ import urllib3
 from base64 import b64encode
 import socket
 
+from key_manager import GitCredentials
+
 # setup an http pool
 http = urllib3.PoolManager()
+
+# setup the git credentials manager
+git_credentials = GitCredentials()
 
 class GithubProxyServer(BaseHTTPRequestHandler):
     """
@@ -17,6 +22,9 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         Add an authorization header
         """
         return f"Basic {b64encode(b'{username}:{token}').decode('ascii')}"
+
+
+    deef 
 
     def proxy_response(self, response):
         """
@@ -122,34 +130,32 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         # return the headers
         return headers
 
-    # def do_CONNECT(self):
-    #     """
-    #     Setup connect method
-    #     """
+    def do_CONNECT(self):
+        """
+        Setup connect method
+        """
 
-    #     (ip, _) = self.client_address
-    #     target_ip = self.path.split(":")[0]
-# 
-        # target = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # print(dir(target))
-        # try:
-        #     # if self._connect_to(self.path, target):
-        #     # if True:
-        #     # if self.connection.connect():
-        #     # if self.connection.connect(self.path, target):
+        (ip, _) = self.client_address
+        target_ip = self.path.split(":")[0]
 
-        #     # self.log_request(200)
-        #     # self.wfile.write(self.protocol_version +
-        #                     # " 200 Connection established\r\n")
-        #     # self.wfile.write("Proxy-agent: TestProxy\r\n")
-        #     # self.wfile.write("\r\n")
-        #         # self._read_write(self.connection, target, 300)
-        #     self.do_GET()
-        # finally:
-        #     # target.close()
-        #     self.connection.close()
+        target = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        try:
+            self.wfile.write(f"{self.protocol_version} 200 Connection established\r\n".encode("utf-8"))
+            self.wfile.write(f"Proxy-agent: Gitroto Proxy\r\n".encode("utf-8"))
+            self.wfile.write("\r\n".encode("utf-8"))
+            # try:
+                # self._read_write(target, 300)
+            # except Exception as err:
+                # print(f"Encountered error in writing to socket, error : {err}")
         
+        except Exception as err:
+            print(f"Failed to setup socket connection, error : {err}")
+
+
+        finally:
+            target.close()
+            self.connection.close()
 
 if __name__ == '__main__':
 

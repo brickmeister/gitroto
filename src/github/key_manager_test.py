@@ -2,7 +2,7 @@
 Test script to test user_token key management
 """
 
-from key_management import GitCredentials
+from key_manager import GitCredentials
 
 # initialize the db
 _git_db = GitCredentials("gitroto_db")

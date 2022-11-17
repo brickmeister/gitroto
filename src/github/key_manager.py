@@ -5,17 +5,50 @@ Uses SQLite + S3 to provide credentials
 """
 
 import sqlite3
+import boto3
 
 class GitCredentials:
     def __init__(self,
-                 sql_db : str = 'gitroto_db.sqlite'):
+                 s3_bucket : str = '',
+                 sqlite_file : str = 'gitroto.sqlite3'):
         """
         Initialize the database connection
         """
+        
+        # set some variables
+        self.s3_bucket = s3_bucket
+        self.sqlite_file = sqlite_file
 
-        self.sql_db = sql_db
-        self.conn = sqlite3.connect(self.sql_db)
+        # load file from s3
+        if s3_bucket != '':
+            self.s3_bucket = s3_bucket
+            self.boto_client = boto3.client('s3')
+            self.load_s3()
+        
+        self.conn = sqlite3.connect(self.sqlite_file)
         self.cursor = self.conn.cursor()
+
+    def load_db_from_s3(self) -> bool:
+        """
+        load a sqlite3 database from s3
+        """
+
+        try:
+            # close existing sqlite3 connection
+            self.conn.close()
+
+            # download database from s3
+            self.load_s3()
+
+            # load the new connection
+            self.conn = sqlite3.connect(self.sqlite_file)
+            self.cursor = self.conn.cursor()
+
+            return True
+        
+        except Exception as err:
+            print(f"Failed to load database from S3, error = {err}")
+            return False
 
     def create_schema(self) -> bool:
         """
@@ -160,15 +193,30 @@ class GitCredentials:
             print(f"Failed to open sqlite3 connection, error = {err}")
             return False
 
-
     def load_s3(self) -> bool:
         """
         Read in SQLite database from S3
         """
-        pass
+        
+        try:
+            # download sql lite database to current directory
+            self.boto_client.download_file(self.s3_bucket, self.sqlite_file, self.sqlite_file)
+            return True
+
+        except Exception as err:
+            print(f"Failed to download sqlite database from S3, error : {err}")
+            return False
 
     def export_s3(self) -> bool:
         """
         Export SQLite database to S3
         """
-        pass
+        
+        try:
+            # upload sql lite database to s3 bucket
+            self.boto_client.upload_file(self.s3_bucket, self.sqlite_file, self.sqlite_file)
+            return True
+
+        except Exception as err:
+            print(f"Failed to upload sqlite database from S3, error: {err}")
+            return False
