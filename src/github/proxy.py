@@ -23,9 +23,6 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         """
         return f"Basic {b64encode(b'{username}:{token}').decode('ascii')}"
 
-
-    deef 
-
     def proxy_response(self, response):
         """
         Function to proxy a request
@@ -57,6 +54,10 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         # set the url
         url = f"{self.path}"
         print(url)
+
+        # check if we have a heartbeat request
+        if '/_health' in url:
+            return 200
 
         # get the headers
         headers = self.do_HEAD()
