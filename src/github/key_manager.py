@@ -9,7 +9,7 @@ import boto3
 
 class GitCredentials:
     def __init__(self,
-                 s3_bucket : str = '',
+                 s3_bucket : str = None,
                  sqlite_file : str = 'gitroto.sqlite3'):
         """
         Initialize the database connection
@@ -20,13 +20,13 @@ class GitCredentials:
         self.sqlite_file = sqlite_file
 
         # load file from s3
-        if s3_bucket != '':
+        if self.s3_bucket == None:
             self.s3_bucket = s3_bucket
             self.boto_client = boto3.client('s3')
             self.load_s3()
-        
-        self.conn = sqlite3.connect(self.sqlite_file)
-        self.cursor = self.conn.cursor()
+
+        # open a connection
+        self.open_connection()
 
     def load_db_from_s3(self) -> bool:
         """
@@ -185,7 +185,7 @@ class GitCredentials:
         """
         
         try:
-            self.conn = sqlite3.connect(self.sql_db)
+            self.conn = sqlite3.connect(self.sqlite_file)
             self.cursor = self.conn.cursor()
             return True
 
