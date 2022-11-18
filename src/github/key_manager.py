@@ -20,7 +20,7 @@ class GitCredentials:
         self.sqlite_file = sqlite_file
 
         # load file from s3
-        if self.s3_bucket == None:
+        if self.s3_bucket == 'None':
             self.s3_bucket = s3_bucket
             self.boto_client = boto3.client('s3')
             self.load_s3()

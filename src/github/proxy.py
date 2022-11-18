@@ -1,4 +1,5 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from http import HTTPStatus
 import sys
 import urllib3
 from base64 import b64encode
@@ -57,7 +58,9 @@ class GithubProxyServer(BaseHTTPRequestHandler):
 
         # check if we have a heartbeat request
         if '/_health' in url:
-            return 200
+            self.send_response(HTTPStatus.OK)
+            self.end_headers()
+            self.wfile.write(b"Heartbeat ping received\n")
 
         # get the headers
         headers = self.do_HEAD()
@@ -81,7 +84,8 @@ class GithubProxyServer(BaseHTTPRequestHandler):
 
         # set the username and token
         username = self.headers.get('X-Git-User-Name')
-        token = self.headers.get('X-Git-User-Token')
+        token = git_credentials.get_token(username)
+        # token = self.headers.get('X-Git-User-Token')
 
         # read the post content
         post_body = self.rfile.read(content_len)
