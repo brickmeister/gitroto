@@ -85,7 +85,6 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         # set the username and token
         username = self.headers.get('X-Git-User-Name')
         token = git_credentials.get_token(username)
-        # token = self.headers.get('X-Git-User-Token')
 
         # read the post content
         post_body = self.rfile.read(content_len)
@@ -119,18 +118,17 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         # set the username and token
         ## WE WANT TO RETRIEVE THIS FROM OUR LIST
         ## CURRENTLY WON'T WORK WITH SSH DEPLOY KEYS
-        username = self.headers.get('X-Git-User-Name')
-        token = self.headers.get('X-Git-User-Token')
-
-        # setup some headers
-        headers = {
-            "Accept"          : self.headers.get('Accept'),
-            "Authorization"   : self.add_authorization(username, token),
-            "Accept-Encoding" : self.headers.get('Accept-Encoding') 
-        }
-        
-        # setup encoding
-        headers["Accept-Encoding"] = self.headers.get('Accept-Encoding')
+        try:
+            username = self.headers.get('X-Git-User-Name') or "mark"
+            token = git_credentials.get_token(username) or self.headers.get('X-Git-User-Token')
+            headers = {
+                "Accept"          : self.headers.get('Accept'),
+                "Authorization"   : self.add_authorization(username, token),
+                "Accept-Encoding" : self.headers.get('Accept-Encoding') or "*"
+            }
+        except Exception as err:
+            print(f"Failed to get token credentials, error : {err}")
+            headers = {"Accept-Encoding" : self.headers.get('Accept-Encoding') or "*"}
 
         # return the headers
         return headers
