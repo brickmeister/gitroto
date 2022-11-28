@@ -83,26 +83,22 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         content_len = int(self.headers.get('Content-Length', 0))
 
         # set the username and token
-        username = self.headers.get('X-Git-User-Name')
-        token = git_credentials.get_token(username)
+        headers = self.do_HEAD()
 
         # read the post content
         post_body = self.rfile.read(content_len)
         
         # modify the headers
-        ## CHANGE AUTHORIZATION TO USE DIFFERENT USERNAME/PASSWORD
-        ## THAT IS PULLED FROM OBJECT
-        headers = {
-            "Accept": self.headers.get('Accept'),
-            "Accept-Encoding": self.headers.get('Accept-Encoding'),
-            "Authorization": self.add_authorization(username, token),
-            "Cache-Control": self.headers.get('Cache-Control'),
-            "Connection": self.headers.get('Connection'),
-            "Content-Encoding": self.headers.get('Content-Encoding'),
-            "Content-Type": self.headers.get('Content-Type'),
-            "Pragma": self.headers.get('Pragma'),
-            "User-Agent": self.headers.get('User-Agent'),
-        }
+        headers.update({
+            "Cache-Control": self.headers.get('Cache-Control') or '*',
+            "Connection": self.headers.get('Connection') or '*',
+            "Content-Encoding": self.headers.get('Content-Encoding') or '*',
+            "Content-Type": self.headers.get('Content-Type') or '*',
+            "Pragma": self.headers.get('Pragma') or '*',
+            "User-Agent": self.headers.get('User-Agent') or '*',
+        })
+
+        print(headers)
 
         # create a response
         response = http.request('POST', url, body=post_body, headers=headers)
@@ -154,7 +150,6 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         
         except Exception as err:
             print(f"Failed to setup socket connection, error : {err}")
-
 
         finally:
             target.close()
