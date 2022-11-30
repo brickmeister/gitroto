@@ -5,6 +5,7 @@ import urllib3
 from base64 import b64encode
 import socket
 import ssl
+import logging
 
 from key_manager import GitCredentials
 
@@ -23,14 +24,15 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         """
         Add an authorization header
         """
-        return f"Basic {b64encode(b'{username}:{token}').decode('ascii')}"
+        _bytes = bytes(f"{username}:{token}", "ascii")
+        return f"Basic {b64encode(_bytes).decode('ascii')}"
 
     def parse_url(self):
         """
         Parse a url and dynamically change it
         """
 
-        return f"http://github.com{self.path}"
+        return f"https://github.com{self.path}"
 
     def proxy_response(self, response):
         """
@@ -73,6 +75,8 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         # get the headers
         headers = self.do_HEAD()
 
+        print(headers)
+
         # get response
         response = http.request('GET', url, headers=headers, preload_content = False)
 
@@ -95,6 +99,8 @@ class GithubProxyServer(BaseHTTPRequestHandler):
 
         # set the username and token
         headers = self.do_HEAD()
+
+        print(headers)
 
         # read the post content
         post_body = self.rfile.read(content_len)
@@ -125,10 +131,8 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         """
 
         # set the username and token
-        ## WE WANT TO RETRIEVE THIS FROM OUR LIST
-        ## CURRENTLY WON'T WORK WITH SSH DEPLOY KEYS
         try:
-            username = self.headers.get('X-Git-User-Name') or "mark"
+            username = self.headers.get('X-Git-User-Name') or "brickmeister"
             token = git_credentials.get_token(username) or self.headers.get('X-Git-User-Token')
             headers = {
                 "Accept"          : self.headers.get('Accept'),
@@ -136,7 +140,7 @@ class GithubProxyServer(BaseHTTPRequestHandler):
                 "Accept-Encoding" : self.headers.get('Accept-Encoding') or "*"
             }
         except Exception as err:
-            print(f"Failed to get token credentials, error : {err}")
+            logging.warning(f"Failed to get token credentials, error : {err}")
             headers = {"Accept-Encoding" : self.headers.get('Accept-Encoding') or "*"}
 
         # return the headers
