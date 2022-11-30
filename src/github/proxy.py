@@ -150,10 +150,10 @@ if __name__ == '__main__':
     # setup https server
     httpd = HTTPServer(server_address, GithubProxyServer)
     # setup a ssl socket
-    httpd.socket = ssl.wrap_socket(httpd.socket,
-                                   server_side = True,
-                                   ssl_version = ssl.PROTOCOL_TLS,
-                                   certfile = 'localhost.pem')
+    # httpd.socket = ssl.wrap_socket(httpd.socket,
+    #                                server_side = True,
+    #                                ssl_version = ssl.PROTOCOL_TLS,
+    #                                certfile = 'localhost.pem')
 
     # run http server as a daemon
     httpd.serve_forever()
