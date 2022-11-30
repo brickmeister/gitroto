@@ -71,20 +71,20 @@ class GithubProxyServer(BaseHTTPRequestHandler):
             self.send_response(HTTPStatus.OK)
             self.end_headers()
             self.wfile.write(b"Heartbeat ping received\n")
+        else:
+            # get the headers
+            headers = self.do_HEAD()
 
-        # get the headers
-        headers = self.do_HEAD()
+            print(headers)
 
-        print(headers)
+            # get response
+            response = http.request('GET', url, headers=headers, preload_content = False)
 
-        # get response
-        response = http.request('GET', url, headers=headers, preload_content = False)
+            # proxy response
+            self.proxy_response(response)
 
-        # proxy response
-        self.proxy_response(response)
-
-        # release the connection
-        response.release_conn()
+            # release the connection
+            response.release_conn()
 
     def do_POST(self):
         """
