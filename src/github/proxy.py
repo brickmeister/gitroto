@@ -98,8 +98,6 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         # set the username and token
         headers = self.do_HEAD()
 
-        print(headers)
-
         # read the post content
         post_body = self.rfile.read(content_len)
         
