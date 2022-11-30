@@ -75,8 +75,6 @@ class GithubProxyServer(BaseHTTPRequestHandler):
             # get the headers
             headers = self.do_HEAD()
 
-            print(headers)
-
             # get response
             response = http.request('GET', url, headers=headers, preload_content = False)
 
@@ -158,5 +156,6 @@ if __name__ == '__main__':
                                    server_side = True,
                                    ssl_version = ssl.PROTOCOL_TLS,
                                    certfile = 'localhost.pem')
+
     # run http server as a daemon
     httpd.serve_forever()
