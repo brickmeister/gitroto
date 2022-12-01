@@ -7,7 +7,7 @@ import socket
 import ssl
 import logging
 
-from key_manager import GitCredentials
+from key_manager_documentdb import GitCredentials
 
 # setup an http pool
 http = urllib3.PoolManager()
