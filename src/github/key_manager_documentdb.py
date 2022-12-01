@@ -20,7 +20,7 @@ class GitCredentials:
         self.documentdb_table = documentdb_table
 
         # set the connection
-        self.table = boto3.resource("dynamodb", region_name = region_name)
+        self.table = boto3.client("dynamodb", region_name = region_name)
 
     def get_token(self,
                   user : str) -> str:
@@ -29,7 +29,7 @@ class GitCredentials:
         """
         try:
             _result = self.table.get_item(TableName = self.documentdb_table,
-                                          Key={"user": user})
+                                          Key={"user": {"S": user}})
 
             # return the result
             return _result['token']
@@ -47,7 +47,8 @@ class GitCredentials:
 
         try:
             self.table.put_item(TableName = self.documentdb_table,
-                                Item={"user": user, "token": token})
+                                Item={"user": {"S" : user},
+                                      "token" : {"S" :  token}})
 
             return True
 
@@ -63,7 +64,7 @@ class GitCredentials:
 
         try:
             self.table.delete_item(TableName = self.documentdb_table,
-                                   Item={"user": user})
+                                   Item={"user": {"S" : user}})
 
             return True
             
