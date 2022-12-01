@@ -20,7 +20,7 @@ class GitCredentials:
         self.documentdb_table = documentdb_table
 
         # set the connection
-        self.table = boto3.client("dynamodb", region_name = region_name)
+        self.table = boto3.resource("dynamodb", region_name = region_name)
 
     def get_token(self,
                   user : str) -> str:
