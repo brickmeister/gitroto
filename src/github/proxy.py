@@ -32,7 +32,13 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         Parse a url and dynamically change it
         """
 
-        return f"https://github.com{self.path}"
+        if "@" in self.path:
+            _user = self.path.split("@")[0][1:]
+            self.headers['X-Git-User-Name'] = _user
+            _path = self.path.split("@")[1]
+            return f"https://github.com/{_path}"
+        else:
+            return f"https://github.com{self.path}"
 
     def proxy_response(self, response):
         """
