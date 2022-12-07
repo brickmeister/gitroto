@@ -6,6 +6,7 @@ from base64 import b64encode
 import socket
 import ssl
 import logging
+import os
 
 from key_manager_documentdb import GitCredentials
 
@@ -135,12 +136,15 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         # set the username and token
         try:
             username = self.headers.get('X-Git-User-Name') or "brickmeister"
-            token = git_credentials.get_token(username) or self.headers.get('X-Git-User-Token')
-            headers = {
-                "Accept"          : self.headers.get('Accept'),
-                "Authorization"   : self.add_authorization(username, token),
-                "Accept-Encoding" : self.headers.get('Accept-Encoding') or "*"
-            }
+            if os.environ["git_nonce"] == self.headers.get('X-Git-User-Token'):
+                token = git_credentials.get_token(username) or self.headers.get('X-Git-User-Token')
+                headers = {
+                    "Accept"          : self.headers.get('Accept'),
+                    "Authorization"   : self.add_authorization(username, token),
+                    "Accept-Encoding" : self.headers.get('Accept-Encoding') or "*"
+                }
+            else:
+                logging.warning("Not authorized to use this git proxy")
         except Exception as err:
             logging.warning(f"Failed to get token credentials, error : {err}")
             headers = {"Accept-Encoding" : self.headers.get('Accept-Encoding') or "*"}
