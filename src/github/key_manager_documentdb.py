@@ -11,6 +11,7 @@ import logging
 # setup a logger
 logger = logging.getLogger(__name__)
 
+
 class GitCredentials:
     def __init__(self,
                  documentdb_table,

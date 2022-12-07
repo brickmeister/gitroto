@@ -2,13 +2,13 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from http import HTTPStatus
 import sys
 import urllib3
-from base64 import b64encode
+from base64 import b64encode, b64decode
 import socket
 import ssl
 import logging
 import os
 
-from key_manager_documentdb import GitCredentials
+from key_manager import GitCredentials
 
 # setup an http pool
 http = urllib3.PoolManager()
@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 # setup the git credentials manager
 git_credentials = GitCredentials()
+
 
 class GithubProxyServer(BaseHTTPRequestHandler):
     """
@@ -36,13 +37,13 @@ class GithubProxyServer(BaseHTTPRequestHandler):
         Parse a url and dynamically change it
         """
 
-        if "@" in self.path:
-            _user = self.path.split("@")[0][1:]
-            self.headers['X-Git-User-Name'] = _user
-            _path = self.path.split("@")[1]
-            return f"https://github.com/{_path}"
-        else:
-            return f"https://github.com{self.path}"
+        # if "@" in self.path:
+        #     _user = self.path.split("@")[0][1:]
+        #     self.headers['X-Git-User-Name'] = _user
+        #     _path = self.path.split("@")[1]
+        #     return f"https://github.com/{_path}"
+        # else:
+        return f"https://github.com{self.path}"
 
     def proxy_response(self, response):
         """
@@ -138,9 +139,11 @@ class GithubProxyServer(BaseHTTPRequestHandler):
 
         # set the username and token
         try:
-            username = self.headers.get('X-Git-User-Name') or "brickmeister"
-            if os.environ["git_nonce"] == self.headers.get('X-Git-User-Token'):
-                token = git_credentials.get_token(username) or self.headers.get('X-Git-User-Token')
+            # logging.warning(self.headers)
+            _string = b64decode(self.headers.get("Authorization").split("Basic ")[-1]).decode('ascii')
+            (username, nonce) = _string.split(":")
+            if os.environ["git_nonce"] == nonce:
+                token = git_credentials.get_token(username)
                 headers = {
                     "Accept"          : self.headers.get('Accept'),
                     "Authorization"   : self.add_authorization(username, token),
