@@ -8,6 +8,9 @@ import sqlite3
 import boto3
 import logging
 
+# setup a logger
+logger = logging.getLogger(__name__)
+
 class GitCredentials:
     def __init__(self,
                  documentdb_table,
@@ -35,7 +38,7 @@ class GitCredentials:
             return _result['token']
 
         except Exception as err:
-            logging.warning(f"Failed to get token, error : {err}")
+            logger.warning(f"Failed to get token, error : {err}")
             return "ERROR"
 
     def set_token(self,
@@ -53,7 +56,7 @@ class GitCredentials:
             return True
 
         except Exception as err:
-            logging.warning(f"Failed to set token, error : {err}")
+            logger.warning(f"Failed to set token, error : {err}")
             return False
 
     def delete_user(self,
@@ -69,6 +72,6 @@ class GitCredentials:
             return True
             
         except Exception as err:
-            logging.warning(f"Failed to delete user {user}, error : {err}")
+            logger.warning(f"Failed to delete user {user}, error : {err}")
             return False
 

@@ -13,6 +13,9 @@ from key_manager_documentdb import GitCredentials
 # setup an http pool
 http = urllib3.PoolManager()
 
+# setup a logger
+logger = logging.getLogger(__name__)
+
 # setup the git credentials manager
 git_credentials = GitCredentials()
 
@@ -144,9 +147,9 @@ class GithubProxyServer(BaseHTTPRequestHandler):
                     "Accept-Encoding" : self.headers.get('Accept-Encoding') or "*"
                 }
             else:
-                logging.warning("Not authorized to use this git proxy")
+                logger.warning("Not authorized to use this git proxy")
         except Exception as err:
-            logging.warning(f"Failed to get token credentials, error : {err}")
+            logger.warning(f"Failed to get token credentials, error : {err}")
             headers = {"Accept-Encoding" : self.headers.get('Accept-Encoding') or "*"}
 
         # return the headers
